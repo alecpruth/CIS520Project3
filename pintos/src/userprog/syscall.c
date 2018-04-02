@@ -504,6 +504,11 @@ lookup_mapping (int handle)
 static void
 unmap (struct mapping *m) 
 {
+    
+    void *base_addr = m->base;
+      unsigned page_cnt = m ->page_cnt;
+      if( pagedir_is_dirty(thread_current()-> pagedir, m-> base))
+          file_write(m->file, m-> base, file_length(m->file)); 
 /* add code here
  * undo everything done inside map function
  * order is relevant */
@@ -515,9 +520,11 @@ unmap (struct mapping *m)
  off_t length = file_length (m->file);
  for(;length > 0; addr += PGSIZE) {
      page_deallocate(addr);
-     length -= length >= PGSIZE ? PGSIZE : length; //Length will be updated just one time
-                                                   //therefore this does not work for multiple mapping
-                                                   //need to come up with a new implementation
+     length -= length >= PGSIZE ? PGSIZE : length; 
+       
+       //Length will be updated just one time
+       //therefore this does not work for multiple mapping
+       //need to come up with a new implementation
  }
  */
  
@@ -595,9 +602,8 @@ for (e = list_begin (&cur->mappings); e != list_end (&cur->mappings);
     {
       struct mapping *m = list_entry (e, struct mapping, elem);
       next = list_next (e);
-      if(m->handle = mapping){
+      if(m->handle = mapping)
         unmap (m);
-      }
     }
   return 0;
 }
