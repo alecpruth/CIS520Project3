@@ -514,7 +514,7 @@ unmap (struct mapping *m)
  * order is relevant */
  
  
- void * addr = m-> base; //m->base = addr;
+ void * addr = m->base; //m->base = addr;
  
  /*
  off_t length = file_length (m->file);
@@ -597,6 +597,7 @@ sys_munmap (int mapping)
  * (follow sys_exit because it unmaps)*/
   struct thread *cur = thread_current ();
   struct list_elem *e, *next;
+//got from sys_exit  
 for (e = list_begin (&cur->mappings); e != list_end (&cur->mappings);
        e = next)
     {
