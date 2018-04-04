@@ -149,9 +149,6 @@ page_in (void *fault_addr)
 bool
 page_out (struct page *p) 
 {
-  bool dirty;
-  bool ok = false;
-
   ASSERT (p->frame != NULL);
   ASSERT (lock_held_by_current_thread (&p->frame->lock));
 
@@ -166,7 +163,6 @@ page_out (struct page *p)
 /* add code here */
 
   /* Has the frame been modified? this checks to see if the page has been modified */
-   dirty = pagedir_is_dirty (p->thread->pagedir, p->addr);
 
 
 /* add code here */
@@ -175,31 +171,20 @@ page_out (struct page *p)
 
 /* add code here */
 
- /* Write frame contents to disk if necessary. */
-  if (p->file != NULL) 
-    {
-      if (dirty) 
-        {
-          if (p->private)
-            ok = swap_out(p);
-          else 
-           //file_write_at (struct file *file, const void *buffer, off_t size, off_t file_ofs) 
-            ok = file_write_at(p->file, p->frame->base, p->file_bytes,
-                                p->file_offset) == p->file_bytes;
-        }
-      else
-        ok = true;
+ /* Write frame contents to disk if necessary. */ 
+   //so check if the page is memory mapped p->file != NULL and if the page has not been modified 
+  if (p->file != NULL && !pagedir_is_dirty (p->thread->pagedir, p->addr) ) {
+    //dont swap
+    p->frame = NULL;
+    return true;
+  }
+  //we will swap  
+  else if(swap_out(p)) {
+        p->frame = NULL;
+        return true;
     }
-  else
-    ok = swap_out (p);
-  if (ok) 
-    {
-      //memset (p->frame->base, 0xcc, PGSIZE);
-      p->frame = NULL; 
-    }
-
-
-  return ok;
+    
+  return false;
 }
 
 /* Returns true if page P's data has been accessed recently,
