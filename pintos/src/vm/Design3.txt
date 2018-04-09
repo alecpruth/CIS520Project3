@@ -1,0 +1,53 @@
+CIS 520 Project 3: Virtual Memory
+
+---- GROUP ----
+Alec Ruth
+Travis Atchison
+Cre Moore
+
+---- PRELIMINARIES ----
+
+
+	PAGE TABLE MANAGEMENT
+	=====================
+
+---- ALGORITHMS ----
+	A1.
+
+
+---- SYNCHRONIZATION ----
+	A2. When a new frame is allocated, the try_frame_alloc_and_lock method in frame.c is eventually called.
+In this method, we use a lock to ensure that only one process is allowed to allocate frames at a time.
+
+
+	PAGING TO AND FROM DISK
+	=======================
+	
+---- ALGORITHMS ----
+	B1.
+
+	B2. We decide this by first confirming that the original page fault was caused by a stack overflow,
+then we verify that the given address is below the bottom of the current stack.
+
+
+	MEMORY MAPPED FILES
+	===================
+	
+---- DATA STRUCTURES ----
+	C1. We didn't amke any additions in order to finish the memory mapping implementation. 
+The provided implementation had all the functionality we needed, and we simply added the code
+necessary to get things working. The methods that we altered/added to were:
+syscall.c
+	sys_munmap
+		The unmap system call. Idenitifies the requested mapping in current list of mappings, then unmaps it.
+	unmap
+		Removes the given mapping from virtual memory and, if changed, writes back to the file system.
+
+---- ALGORITHMS ----
+	C2.
+
+	C3.
+
+
+----RATIONALE ----
+	C4.
