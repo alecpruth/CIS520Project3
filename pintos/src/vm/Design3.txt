@@ -24,7 +24,13 @@ In this method, we use a lock to ensure that only one process is allowed to allo
 	=======================
 	
 ---- ALGORITHMS ----
-	B1.
+	B1. When we need to evict a frame, a for loop is used to iterate through all the current frames. For each
+frame, we check to see if we can acquire that frame's lock. If we can't, that means the frame is being used elsewhere
+and we don't want to evict it, so that frame is skipped. If we can acquire the lock, the next thing we check do is double 
+check to make sure that frame is not free/doesn't have a page. If it doesn't have a page, then we assign the page to that frame and 
+exit. If the frame does have a page, then we used page_accessed_recently() to determine if the page has recently been used. If it has
+been used recently, it is possible it will be used again soon, so we skip that frame. If we find a frame that has a page and hasn't been
+used recently, that is the one we swap out.
 
 	B2. We decide this by first confirming that the original page fault was caused by a stack overflow,
 then we verify that the given address is below the bottom of the current stack.
