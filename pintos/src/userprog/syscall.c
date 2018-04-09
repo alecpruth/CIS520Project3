@@ -500,43 +500,43 @@ lookup_mapping (int handle)
 }
 
 /* Remove mapping M from the virtual address space,
-   writing back any pages that have changed. */
+ writing back any pages that have changed. */
 static void
 unmap (struct mapping *m) 
 {
     
     void *base_addr = m->base;
-      unsigned page_cnt = m ->page_cnt;
-      if( pagedir_is_dirty(thread_current()-> pagedir, m-> base))
-          file_write(m->file, m-> base, file_length(m->file)); 
-/* add code here
- * undo everything done inside map function
- * order is relevant */
- 
- 
- void * addr = m->base; //m->base = addr;
- 
- /*
- off_t length = file_length (m->file);
- for(;length > 0; addr += PGSIZE) {
+    unsigned page_cnt = m ->page_cnt;
+    if( pagedir_is_dirty(thread_current()-> pagedir, m-> base))
+        file_write(m->file, m-> base, file_length(m->file));
+    /* add code here
+     * undo everything done inside map function
+     * order is relevant */
+    
+    
+    void * addr = m->base; //m->base = addr;
+    
+    /*
+     off_t length = file_length (m->file);
+     for(;length > 0; addr += PGSIZE) {
      page_deallocate(addr);
-     length -= length >= PGSIZE ? PGSIZE : length; 
-       
-       //Length will be updated just one time
-       //therefore this does not work for multiple mapping
-       //need to come up with a new implementation
- }
- */
- 
- for(; m->page_cnt > 0; m ->page_cnt--, addr += PGSIZE)
-    page_deallocate(addr);
- 
- list_remove(&m->elem); //list_push_front (&thread_current ()->mappings, &m->elem);
- 
- file_close(m->file);  //m->file = file_reopen (fd->file);
- 
- free (m);
-
+     length -= length >= PGSIZE ? PGSIZE : length;
+     
+     //Length will be updated just one time
+     //therefore this does not work for multiple mapping
+     //need to come up with a new implementation
+     }
+     */
+    
+    for(; m->page_cnt > 0; m ->page_cnt--, addr += PGSIZE)
+        page_deallocate(addr);
+    
+    list_remove(&m->elem); //list_push_front (&thread_current ()->mappings, &m->elem);
+    
+    file_close(m->file);  //m->file = file_reopen (fd->file);
+    
+    free (m);
+    
 }
  
 /* Mmap system call. */
@@ -592,21 +592,22 @@ sys_mmap (int handle, void *addr)
 static int
 sys_munmap (int mapping) 
 {
-/* add code here  
- * Do the opposite of mmap 
- * (follow sys_exit because it unmaps)*/
-  struct thread *cur = thread_current ();
-  struct list_elem *e, *next;
-//got from sys_exit  
-for (e = list_begin (&cur->mappings); e != list_end (&cur->mappings);
-       e = next)
+    /* add code here
+     * Do the opposite of mmap
+     * (follow sys_exit because it unmaps)*/
+    struct thread *cur = thread_current ();
+    struct list_elem *e, *next;
+    
+    //got from sys_exit
+    for (e = list_begin (&cur->mappings); e != list_end (&cur->mappings);
+         e = next)
     {
-      struct mapping *m = list_entry (e, struct mapping, elem);
-      next = list_next (e);
-      if(m->handle = mapping)
-        unmap (m);
+        struct mapping *m = list_entry (e, struct mapping, elem);
+        next = list_next (e);
+        if(m->handle = mapping)
+            unmap (m);
     }
-  return 0;
+    return 0;
 }
  
 /* On thread exit, close all open files and unmap all mappings. */

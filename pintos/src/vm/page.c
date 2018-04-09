@@ -34,43 +34,43 @@ page_exit (void)
 }
 
 /* Returns the page containing the given virtual ADDRESS,
-   or a null pointer if no such page exists.
-   Allocates stack pages as necessary. */
+ or a null pointer if no such page exists.
+ Allocates stack pages as necessary. */
 static struct page *
 page_for_addr (const void *address) 
 {
-  if (address < PHYS_BASE) 
+    if (address < PHYS_BASE)
     {
-      struct page p;
-      struct hash_elem *e;
-
-      /* Find existing page. */
-      p.addr = (void *) pg_round_down (address);
-      e = hash_find (thread_current ()->pages, &p.hash_elem);
-      if (e != NULL)
-        return hash_entry (e, struct page, hash_elem);
-
-      /* No page.  Expand stack? */
-      //printf("Expand Stack"); Test to see what passes
-
-/* add code */
-
-    #define STACK_CAPACITY 128*1024     //Max capacity of stack is 128 KBs
-    
-    
-    struct thread *cur_thread = thread_current();
-    
-    // Confirm if page fault is due to a stack over flow then,
-    // Verify that the esp is below the currently allocated by keeping track 
-    // of the bottom of the current stack page
-    if(((unsigned)address > PHYS_BASE-STACK_CAPACITY) && (cur_thread->user_esp <= cur_thread->stack_boundary)) { 
-        //Allocate new page for the stack right below the current page
-        cur_thread->stack_boundary -= PGSIZE;
-        return(page_allocate(pg_round_down(address), false)); // Round down To make sure new page is allocated to the nearest page boundary
+        struct page p;
+        struct hash_elem *e;
+        
+        /* Find existing page. */
+        p.addr = (void *) pg_round_down (address);
+        e = hash_find (thread_current ()->pages, &p.hash_elem);
+        if (e != NULL)
+            return hash_entry (e, struct page, hash_elem);
+        
+        /* No page.  Expand stack? */
+        //printf("Expand Stack"); Test to see what passes
+        
+        /* add code */
+        
+#define STACK_CAPACITY 128*1024     //Max capacity of stack is 128 KBs
+        
+        
+        struct thread *cur_thread = thread_current();
+        
+        // Confirm if page fault is due to a stack over flow then,
+        // Verify that the esp is below the currently allocated by keeping track
+        // of the bottom of the current stack page
+        if(((unsigned)address > PHYS_BASE-STACK_CAPACITY) && (cur_thread->user_esp <= cur_thread->stack_boundary)) {
+            //Allocate new page for the stack right below the current page
+            cur_thread->stack_boundary -= PGSIZE;
+            return(page_allocate(pg_round_down(address), false)); // Round down To make sure new page is allocated to the nearest page boundary
+        }
+        
     }
-
-    }
-  return NULL;
+    return NULL;
 }
 
 /* Locks a frame for page P and pages it in.
@@ -144,47 +144,47 @@ page_in (void *fault_addr)
 }
 
 /* Evicts page P.
-   P must have a locked frame.
-   Return true if successful, false on failure. */
+ P must have a locked frame.
+ Return true if successful, false on failure. */
 bool
 page_out (struct page *p) 
 {
-  ASSERT (p->frame != NULL);
-  ASSERT (lock_held_by_current_thread (&p->frame->lock));
-
-  /* Mark page not present in page table, forcing accesses by the
+    ASSERT (p->frame != NULL);
+    ASSERT (lock_held_by_current_thread (&p->frame->lock));
+    
+    /* Mark page not present in page table, forcing accesses by the
      process to fault.  This must happen before checking the
      dirty bit, to prevent a race with the process dirtying the
      page. */
-      
-     //complement of pagedir_set_page used p->thread because thread_current() may not always call page_out 
+    
+    //complement of pagedir_set_page used p->thread because thread_current() may not always call page_out 
     pagedir_clear_page (p->thread->pagedir, p->addr);
-
-/* add code here */
-
-  /* Has the frame been modified? this checks to see if the page has been modified */
-
-
-/* add code here */
-
-  /* Write frame contents to disk if necessary. */
-
-/* add code here */
-
- /* Write frame contents to disk if necessary. */ 
-   //so check if the page is memory mapped p->file != NULL and if the page has not been modified 
-  if (p->file != NULL && !pagedir_is_dirty (p->thread->pagedir, p->addr) ) {
-    //dont swap
-    p->frame = NULL;
-    return true;
-  }
-  //we will swap  
-  else if(swap_out(p)) {
+    
+    /* add code here */
+    
+    /* Has the frame been modified? this checks to see if the page has been modified */
+    
+    
+    /* add code here */
+    
+    /* Write frame contents to disk if necessary. */
+    
+    /* add code here */
+    
+    /* Write frame contents to disk if necessary. */ 
+    //so check if the page is memory mapped p->file != NULL and if the page has not been modified 
+    if (p->file != NULL && !pagedir_is_dirty (p->thread->pagedir, p->addr) ) {
+        //dont swap
+        p->frame = NULL;
+        return true;
+    }
+    //we will swap  
+    else if(swap_out(p)) {
         p->frame = NULL;
         return true;
     }
     
-  return false;
+    return false;
 }
 
 /* Returns true if page P's data has been accessed recently,
