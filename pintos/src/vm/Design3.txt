@@ -12,7 +12,12 @@ Cre Moore
 	=====================
 
 ---- ALGORITHMS ----
-	A1.
+	A1. In virtual-to-physical address translation, we use the method lookup_page in pagedir.c to find the page table
+entry that contains the virtual address we are searching for. This method uses the procided page directory number 
+plus the page directory number of the virtual address in order to locate the identification for that page's page table.
+We can then use this to locate the actual page table, which contains the information about which frame the page belongs to.
+	While we are aware that the information about a page's frame is located in the page table, we were unable to find the source 
+file for page tables in this project, and so have no further specific instructions beyond finding the page table.
 
 
 ---- SYNCHRONIZATION ----
@@ -65,4 +70,7 @@ NULL to sys_mmap. If that happens, then we cancel the mappings we have already d
 
 
 ----RATIONALE ----
-	C4.
+	C4. Our implementation does not share much of the code for these two situations. This is because our implementation actually does 
+have mmapped files written to the swap disk, not directly back to the files. While writing to the file might be the better way to do things,
+our current implementation still passes all of the tests, so we didn't think we needed to change things. That being said, the fact that we use
+the swap disk instead of writing straight to a file means that our implementation does not share much code with data demand-page executables.
