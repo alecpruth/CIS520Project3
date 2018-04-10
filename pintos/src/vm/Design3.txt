@@ -50,13 +50,18 @@ syscall.c
 		Removes the given mapping from virtual memory and, if changed, writes back to the file system.
 
 ---- ALGORITHMS ----
-	C2. Page Fault and eviction process in our code differs between swap pages and other pages because we used the design of 
+	C2. Memory mapped files are represented with the mapping struct. It keeps track of the file it is mapped to,
+the number of pages, and how where the memory mapping begins. The sys_mmap and sys_munmap system calls handle mapping and 
+unmapping memory. The page fault and eviction process in our code differs between swap pages and other pages because we used the design of 
 writing to the swap disk rather then writing to the file when page faulting and evicting. We choose this implementation because it fit 
-with the rest of our design choices, but writing to the file would have yeilded the same results. We checked if the page is memory mapped p->file != NULL and if the page has not been modified, if this happened then we wont write to the swap disk otherwise we would. 
+with the rest of our design choices, but writing to the file would have yeilded the same results. We checked if the page is memory mapped
+p->file != NULL and if the page has not been modified, if this happened then we wont write to the swap disk otherwise we would. 
 	
-    C3. We determined that if a new file map overlaps any existing segement by figuring out how many pages are needed for a file.
-Once we figured out how many pages are needed, we then allocate for those pages and map them. If we determine that if any entries were written
-in more then one page table we new there would be overlap.
+    C3. When we map a file is sys_mmap, we keep track of the length of the file and how much of it we have already mapped. Every time we add a new page, we
+subtract the length of that page from the total length of the file. This allows us to keep track of how many pages we map and the offset of each page.
+During this process, we try to allocate adjacent pages in order to improve performance. The function page_allocate() will try to insert the new page into 
+a hash table kept by the current thread. If this insertion fails, that means the page in question has alrady been mapped. Page_allocate() will then return
+NULL to sys_mmap. If that happens, then we cancel the mappings we have already done and then exit.
 
 
 ----RATIONALE ----
