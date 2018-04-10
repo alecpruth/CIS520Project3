@@ -50,7 +50,8 @@ syscall.c
 		Removes the given mapping from virtual memory and, if changed, writes back to the file system.
 
 ---- ALGORITHMS ----
-	C2.
+	C2. Page Fault and eviction process in our code differs between swap pages and other pages because we used the design of 
+writing to the swap disk rather then writing to the file when page faulting and evicting.
 
 	C3.
 
